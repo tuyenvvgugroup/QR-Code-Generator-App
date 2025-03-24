@@ -1,21 +1,32 @@
 import "./generator.css";
 import InputField from "../InputField/input";
 import Download from "../Download/download";
-import { useEffect, useRef, useState } from "react";
-import { QRCodeCanvas } from "qrcode.react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
 
 const Generator = () => {
   const [text, setText] = useState("");
   const qrRef = useRef(null);
   const [isAnimation, setIsAnimation] = useState(false);
+  const canvasRef = useRef(null);
+
+  const createQRCode = useCallback(async () => {
+    if (!canvasRef.current && !text) return;
+    try {
+      await QRCode.toCanvas(canvasRef.current, text, { width: 130 });
+    } catch {
+      console.error("Error");
+    }
+  }, [canvasRef, text]);
 
   useEffect(() => {
     if (text) {
       setIsAnimation(true);
+      createQRCode();
     } else {
       setIsAnimation(false);
     }
-  }, [text]);
+  }, [text, createQRCode]);
 
   return (
     <div className="generator">
@@ -31,7 +42,7 @@ const Generator = () => {
           className={`qrcode fade-in ${isAnimation ? "show" : ""}`}
           ref={qrRef}
         >
-          <QRCodeCanvas value={text} size={100}></QRCodeCanvas>
+          <canvas ref={canvasRef} />
         </div>
       )}
       {text && (
