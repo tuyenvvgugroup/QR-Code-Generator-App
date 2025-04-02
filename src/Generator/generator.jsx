@@ -8,21 +8,22 @@ const Generator = () => {
   const [text, setText] = useState("");
   const qrRef = useRef(null);
   const [isAnimation, setIsAnimation] = useState(false);
-  const canvasRef = useRef(null);
 
-  const createQRCode = useCallback(async () => {
-    if (!canvasRef.current && !text) return;
-    try {
-      await QRCode.toCanvas(canvasRef.current, text, { width: 130 });
-    } catch {
-      console.error("Error");
-    }
-  }, [canvasRef, text]);
+  const createQRCode = useCallback(() => {
+    var canvas = document.getElementById("canvas");
+    QRCode.toCanvas(canvas, text, function (error) {
+      if (error) console.error("Error");
+      console.log("Success");
+    });
+  }, [text]);
+
+  const handleClick = () => {
+    createQRCode();
+  };
 
   useEffect(() => {
     if (text) {
       setIsAnimation(true);
-      createQRCode();
     } else {
       setIsAnimation(false);
     }
@@ -42,7 +43,10 @@ const Generator = () => {
           className={`qrcode fade-in ${isAnimation ? "show" : ""}`}
           ref={qrRef}
         >
-          <canvas ref={canvasRef} />
+          <canvas id="canvas" />
+          <button className="qrcode-button" onClick={handleClick}>
+            Generator
+          </button>
         </div>
       )}
       {text && (
